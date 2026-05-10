@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Happy Mothers Day</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<audio id="bg-music" src="10.mp3" loop></audio>
+
+<div id="hearts-container"></div>
+
+<div id="click-to-start" class="start-screen">Tap anywhere to reveal the surprise</div>
+
+<div id="landing-page" class="hidden opacity-0 transition-opacity">
+  <div class="carousel-container">
+    <img src="2.jpeg" class="carousel-img active">
+    <img src="3.jpeg" class="carousel-img">
+    <img src="4.jpeg" class="carousel-img">
+    <img src="5.jpeg" class="carousel-img">
+    <img src="6.jpeg" class="carousel-img">
+    <img src="7.jpeg" class="carousel-img">
+    <img src="8.jpeg" class="carousel-img">
+    <img src="9.jpeg" class="carousel-img">
+    <img src="11.jpeg" class="carousel-img">
+    <img src="12.jpeg" class="carousel-img">
+  </div>
+
+  <div class="message-box">
+    <h1>Happy Mothers Day</h1>
+    <p>To the prettiest woman of all. Thank you for seamlessly managing both your professional work and our home, and for keeping us all so happy. Your incredible food and endless care mean everything to me. I will miss you and your cooking terribly when I leave for FLAME University for the next two years. I value you the most.</p>
+    <span class="highlight">from your most loved adi</span>
+  </div>
+
+  <div class="scroll-prompt">Scroll down for games</div>
+</div>
+
+<div id="games-section" class="hidden">
+  <h2>Select a Module</h2>
+  <div class="game-grid">
+    <button onclick="openGame('Fablife')">Fablife</button>
+    <button onclick="openGame('subway surfers')">subway surfers</button>
+    <button onclick="openGame('angry birds')">angry birds</button>
+    <button onclick="openGame('Flappy bird')">Flappy bird</button>
+  </div>
+</div>
+
+<div id="game-modal" class="hidden">
+  <button onclick="closeGame()" class="back-btn">Return to Menu</button>
+  <h2 id="game-title"></h2>
+  <p id="game-instructions" class="instructions-text"></p>
+  <button id="start-game-btn" class="start-btn">Start Playing</button>
+  <canvas id="game-canvas" width="400" height="600"></canvas>
+  <img id="avatar-img" src="1.jpeg" style="display:none;">
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
