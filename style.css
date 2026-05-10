@@ -6,6 +6,7 @@ body, html {
   margin: 0;
   padding: 0;
   width: 100%;
+  height: 100%;
   font-family: 'Playfair Display', serif !important;
   background: linear-gradient(135deg, #FFB6C1, #FF69B4, #FF1493);
   background-attachment: fixed;
@@ -69,6 +70,7 @@ body, html {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
 }
 
 #mute-btn {
@@ -96,14 +98,13 @@ body, html {
   width: 100%;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   margin-bottom: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .text-center {
   text-align: center;
-}
-
-.text-right {
-  text-align: right;
 }
 
 .margin-top {
@@ -134,7 +135,7 @@ p {
 .carousel-container {
   width: 100%;
   max-width: 350px;
-  aspect-ratio: 9 / 16;
+  aspect-ratio: 1 / 1;
   display: flex;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
@@ -142,6 +143,7 @@ p {
   border-radius: 16px;
   box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
   background: rgba(255, 255, 255, 0.1);
+  margin-bottom: 40px;
 }
 
 .carousel-container::-webkit-scrollbar {
@@ -152,15 +154,16 @@ p {
   flex: 0 0 100%;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   scroll-snap-align: center;
 }
 
 .game-buttons {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
+  flex-direction: column;
   gap: 15px;
   margin-top: 20px;
+  width: 100%;
 }
 
 button {
@@ -172,36 +175,43 @@ button {
   font-size: 18px;
   border-radius: 10px;
   cursor: pointer;
-  transition: background 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 button:hover {
   background: rgba(255, 255, 255, 0.4);
+  transform: scale(1.05);
 }
 
 .glass-background {
-  background: rgba(0, 0, 0, 0.9);
+  background: rgba(0, 0, 0, 0.95);
   backdrop-filter: blur(10px);
+  padding: 20px;
 }
 
 .game-header {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   align-items: center;
   width: 100%;
-  max-width: 300px;
   margin-bottom: 15px;
 }
 
 #game-canvas {
-  background: #87CEEB;
+  background: linear-gradient(to bottom, #87CEEB, #E0F6FF);
   border-radius: 12px;
   box-shadow: 0 0 20px rgba(255, 105, 180, 0.6);
   touch-action: none;
+  width: 100%;
+  height: 60vh;
+  display: block;
 }
 
 #game-over-message {
   position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   background: rgba(0, 0, 0, 0.8);
   padding: 20px;
   border-radius: 10px;
@@ -209,7 +219,20 @@ button:hover {
 }
 
 #game-instruction {
-  max-width: 300px;
   text-align: center;
   margin-bottom: 15px;
+  padding: 10px;
+}
+
+#game-controls {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 300px;
+  margin-bottom: 10px;
+}
+
+.control-btn {
+  padding: 10px 20px;
+  background: rgba(255, 105, 180, 0.6);
 }
