@@ -1,234 +1,165 @@
 // START
-
-document.getElementById("start-screen")
-.addEventListener("click", function(){
-
+document.getElementById("start-screen").addEventListener("click", function(){
   if(document.documentElement.requestFullscreen){
     document.documentElement.requestFullscreen().catch(()=>{});
   }
-
   this.style.opacity="0";
-
   setTimeout(()=>{
     this.classList.add("hidden");
-    document.getElementById("main-content")
-    .classList.remove("hidden");
+    document.getElementById("main-content").classList.remove("hidden");
   },500);
-
   audio.volume=0.5;
-
   audio.play().catch(()=>{});
 });
 
 // AUDIO
-
-const audio =
-document.getElementById("bg-music");
-
-const coinSound =
-document.getElementById("coin-sound");
-
-const hitSound =
-document.getElementById("hit-sound");
-
-const jumpSound =
-document.getElementById("jump-sound");
-
-const muteBtn =
-document.getElementById("mute-btn");
-
+const audio = document.getElementById("bg-music");
+const coinSound = document.getElementById("coin-sound");
+const hitSound = document.getElementById("hit-sound");
+const jumpSound = document.getElementById("jump-sound");
+const muteBtn = document.getElementById("mute-btn");
+const subwayMusic = document.getElementById("subway-music");
+const flappyMusic = document.getElementById("flappy-music");
 let isMuted=false;
 
 muteBtn.addEventListener("click",()=>{
-
   isMuted=!isMuted;
-
   audio.muted=isMuted;
-
-  muteBtn.innerText=
-  isMuted
-  ? "Unmute Audio"
-  : "Mute Audio";
+  subwayMusic.muted=isMuted;
+  flappyMusic.muted=isMuted;
+  muteBtn.innerText= isMuted ? "Unmute Audio" : "Mute Audio";
 });
 
 // HEARTS
-
 function spawnHeart(){
-
-  const container=
-  document.getElementById("hearts-overlay");
-
-  const heart=
-  document.createElement("div");
-
+  const container= document.getElementById("hearts-overlay");
+  const heart= document.createElement("div");
   const icons=["🤍","💖","💗","🌸"];
-
-  heart.innerText=
-  icons[Math.floor(Math.random()*icons.length)];
-
+  heart.innerText= icons[Math.floor(Math.random()*icons.length)];
   heart.className="heart";
-
-  heart.style.left=
-  Math.random()*100+"vw";
-
-  heart.style.animationDuration=
-  Math.random()*3+4+"s";
-
+  heart.style.left= Math.random()*100+"vw";
+  heart.style.animationDuration= Math.random()*3+4+"s";
   container.appendChild(heart);
-
   setTimeout(()=>{
     heart.remove();
   },7000);
 }
-
 setInterval(spawnHeart,300);
 
 // CAROUSEL
-
-const carousel=
-document.getElementById("carousel");
-
+const carousel= document.getElementById("carousel");
 let carouselInterval;
 
 function startCarouselAutoScroll(){
-
   carouselInterval=setInterval(()=>{
-
-    if(
-      carousel.scrollLeft+
-      carousel.clientWidth
-      >=
-      carousel.scrollWidth-10
-    ){
-
+    if(carousel.scrollLeft+ carousel.clientWidth >= carousel.scrollWidth-10){
       carousel.scrollTo({
         left:0,
         behavior:"smooth"
       });
-
     }else{
-
       carousel.scrollBy({
         left:carousel.clientWidth,
         behavior:"smooth"
       });
     }
-
   },3000);
 }
-
 startCarouselAutoScroll();
 
-// GAME
+// CAROUSEL DOTS
+const images = document.querySelectorAll(".carousel-image");
+const dotsContainer = document.getElementById("carousel-dots");
 
-const canvas=
-document.getElementById("game-canvas");
+images.forEach((_,index)=>{
+  const dot=document.createElement("div");
+  dot.classList.add("dot");
+  if(index===0){
+    dot.classList.add("active");
+  }
+  dotsContainer.appendChild(dot);
+});
 
-const ctx=
-canvas.getContext("2d");
+const dots = document.querySelectorAll(".dot");
+carousel.addEventListener("scroll",()=>{
+  const index= Math.round( carousel.scrollLeft / carousel.clientWidth );
+  dots.forEach(dot=>{
+    dot.classList.remove("active");
+  });
+  if(dots[index]){
+    dots[index].classList.add("active");
+  }
+});
 
-const avatar=
-document.getElementById("player-avatar");
-
-const scoreDisplay=
-document.getElementById("score-display");
-
-const highScoreDisplay=
-document.getElementById("high-score-display");
-
-const leftBtn=
-document.getElementById("left-btn");
-
-const rightBtn=
-document.getElementById("right-btn");
+// GAME VARIABLES
+const canvas= document.getElementById("game-canvas");
+const ctx= canvas.getContext("2d");
+const avatar= document.getElementById("player-avatar");
+const scoreDisplay= document.getElementById("score-display");
+const highScoreDisplay= document.getElementById("high-score-display");
+const leftBtn= document.getElementById("left-btn");
+const rightBtn= document.getElementById("right-btn");
+const countdownElement = document.getElementById("countdown");
+const instructionBox = document.getElementById("instruction-box");
+const okayBtn = document.getElementById("okay-btn");
 
 let animationId;
-
 let activeGame="";
-
 let gameScore=0;
-
 let frameCount=0;
-
 let isGameRunning=false;
-
 let gameEntities=[];
-
 let playerObj={};
-
 let gameSpeed=5;
 
 const gradients=[
-
-"linear-gradient(135deg,#ffb6c1,#ff69b4,#ff1493)",
-
-"linear-gradient(135deg,#ff9eb5,#ff4fa3,#ff007f)",
-
-"linear-gradient(135deg,#ff85b3,#ff5fa2,#d63384)",
-
-"linear-gradient(135deg,#ffccd5,#ff7096,#ff1493)"
+  "linear-gradient(135deg,#ffb6c1,#ff69b4,#ff1493)",
+  "linear-gradient(135deg,#ff9eb5,#ff4fa3,#ff007f)",
+  "linear-gradient(135deg,#ff85b3,#ff5fa2,#d63384)",
+  "linear-gradient(135deg,#ffccd5,#ff7096,#ff1493)"
 ];
 
 const gameRules={
-
-"Subway Surfers":
-"Use the arrows or tap left/right. Avoid carts and collect gems 💎.",
-
-"Flappy Bird":
-"Tap anywhere to fly. Survive as long as possible 🪽."
+  "Subway Surfers": "Use the arrows or tap left/right. Avoid carts and collect gems 💎.",
+  "Flappy Bird": "Tap anywhere to fly. Survive as long as possible 🪽."
 };
 
 function resizeCanvas(){
-
-  canvas.width=
-  window.innerWidth-30;
-
-  canvas.height=
-  window.innerHeight-320;
+  canvas.width= window.innerWidth-30;
+  canvas.height= window.innerHeight-320;
 }
-
 resizeCanvas();
-
 window.addEventListener("resize",resizeCanvas);
 
 // INIT
-
 function initializeGame(name){
-
   activeGame=name;
 
-  document.getElementById("game-screen")
-  .classList.remove("hidden");
+  audio.pause();
+  subwayMusic.pause();
+  flappyMusic.pause();
 
-  document.getElementById(
-    "game-title-display"
-  ).innerText=name;
+  if(name==="Subway Surfers"){
+    subwayMusic.volume=0.45;
+    subwayMusic.play();
+  }
+  if(name==="Flappy Bird"){
+    flappyMusic.volume=0.45;
+    flappyMusic.play();
+  }
 
-  document.getElementById(
-    "game-instruction"
-  ).innerText=gameRules[name];
-
-  document.getElementById(
-    "start-play-btn"
-  ).style.display="block";
-
-  document.getElementById(
-    "game-over-message"
-  ).classList.add("hidden");
-
+  document.getElementById("game-screen").classList.remove("hidden");
+  document.getElementById("game-title-display").innerText=name;
+  document.getElementById("game-instruction").innerText=gameRules[name];
+  instructionBox.classList.remove("hidden");
   canvas.style.display="none";
 
   loadHighScore();
 
   if(name==="Subway Surfers"){
-
-    document.getElementById("control-panel")
-    .classList.remove("hidden");
-
+    document.getElementById("control-panel").classList.remove("hidden");
   }else{
-
-    document.getElementById("control-panel")
-    .classList.add("hidden");
+    document.getElementById("control-panel").classList.add("hidden");
   }
 
   if(animationId){
@@ -237,66 +168,74 @@ function initializeGame(name){
 }
 
 // EXIT
-
 function exitGame(){
-
-  document.getElementById("game-screen")
-  .classList.add("hidden");
-
+  document.getElementById("game-screen").classList.add("hidden");
   isGameRunning=false;
 
   if(animationId){
     cancelAnimationFrame(animationId);
   }
+
+  subwayMusic.pause();
+  flappyMusic.pause();
+
+  if(!isMuted){
+    audio.play();
+  }
 }
 
-// START
-
-document.getElementById("start-play-btn")
-.addEventListener("click",function(){
-
-  this.style.display="none";
-
-  canvas.style.display="block";
-
-  startGameLoop();
+// OKAY BUTTON
+okayBtn.addEventListener("click",()=>{
+  instructionBox.classList.add("hidden");
+  startCountdown();
 });
 
+// COUNTDOWN
+let countdownTimer;
+
+function startCountdown(){
+  if(countdownTimer){
+    clearInterval(countdownTimer);
+  }
+  
+  countdownElement.classList.remove("hidden");
+  let count=3;
+  countdownElement.innerText=count;
+
+  countdownTimer=setInterval(()=>{
+    count--;
+    if(count>0){
+      countdownElement.innerText=count;
+    }else{
+      clearInterval(countdownTimer);
+      countdownElement.classList.add("hidden");
+      canvas.style.display="block";
+      startGameLoop();
+    }
+  },1000);
+}
+
 // LOOP
-
 function startGameLoop(){
-
   resizeCanvas();
-
   isGameRunning=true;
-
   gameScore=0;
-
   frameCount=0;
-
   gameSpeed=5;
-
   gameEntities=[];
-
   scoreDisplay.innerText=gameScore;
 
   updateGameBackground();
-
-  document.getElementById(
-    "game-over-message"
-  ).classList.add("hidden");
+  document.getElementById("game-over-message").classList.add("hidden");
 
   if(activeGame==="Subway Surfers"){
-
     playerObj={
       x:canvas.width/2,
       y:canvas.height-120,
       size:60,
       lane:1
     };
-
   }else{
-
     playerObj={
       x:80,
       y:150,
@@ -306,32 +245,20 @@ function startGameLoop(){
   }
 
   function renderLoop(){
-
     if(!isGameRunning) return;
 
-    ctx.clearRect(
-      0,
-      0,
-      canvas.width,
-      canvas.height
-    );
-
+    ctx.clearRect(0,0,canvas.width,canvas.height);
     frameCount++;
 
     if(activeGame==="Subway Surfers"){
       processSubwaySurfers();
     }
-
     if(activeGame==="Flappy Bird"){
       processFlappyBird();
     }
 
-    // CIRCLE AVATAR
-
     ctx.save();
-
     ctx.beginPath();
-
     ctx.arc(
       playerObj.x+playerObj.size/2,
       playerObj.y+playerObj.size/2,
@@ -339,270 +266,165 @@ function startGameLoop(){
       0,
       Math.PI*2
     );
-
     ctx.closePath();
-
     ctx.clip();
-
-    ctx.drawImage(
-      avatar,
-      playerObj.x,
-      playerObj.y,
-      playerObj.size,
-      playerObj.size
-    );
-
+    ctx.drawImage(avatar,playerObj.x,playerObj.y,playerObj.size,playerObj.size);
     ctx.restore();
 
-    animationId=
-    requestAnimationFrame(renderLoop);
+    animationId= requestAnimationFrame(renderLoop);
   }
-
   renderLoop();
 }
 
 // BACKGROUND CHANGE
-
 function updateGameBackground(){
-
-  const index=
-  Math.floor(gameScore/20)
-  % gradients.length;
-
-  document.getElementById(
-    "game-screen"
-  ).style.background=
-  gradients[index];
+  const index= Math.floor(gameScore/20) % gradients.length;
+  document.getElementById("game-screen").style.background= gradients[index];
 }
 
 // HIGH SCORE
-
 function loadHighScore(){
-
-  const score=
-  localStorage.getItem(
-    activeGame+"_highscore"
-  ) || 0;
-
+  const score= localStorage.getItem(activeGame+"_highscore") || 0;
   highScoreDisplay.innerText=score;
 }
 
 function saveHighScore(){
-
-  const current=
-  localStorage.getItem(
-    activeGame+"_highscore"
-  ) || 0;
-
+  const current= localStorage.getItem(activeGame+"_highscore") || 0;
   if(gameScore>current){
-
-    localStorage.setItem(
-      activeGame+"_highscore",
-      gameScore
-    );
-
-    highScoreDisplay.innerText=
-    gameScore;
+    localStorage.setItem(activeGame+"_highscore",gameScore);
+    highScoreDisplay.innerText=gameScore;
   }
 }
 
 // GAME OVER
-
 function triggerGameOver(){
-
   hitSound.currentTime=0;
   hitSound.play();
-
   isGameRunning=false;
-
   saveHighScore();
-
-  document.getElementById(
-    "game-over-message"
-  ).classList.remove("hidden");
+  document.getElementById("game-over-message").classList.remove("hidden");
 }
 
-// SUBWAY
-
+// SUBWAY FIX
 function processSubwaySurfers(){
-
   const lanePositions=[
-
-    canvas.width*0.2,
-
-    canvas.width*0.5-25,
-
-    canvas.width*0.8-50
+    canvas.width*0.17,
+    canvas.width*0.5-20,
+    canvas.width*0.83-40
   ];
-
-  playerObj.x=
-  lanePositions[playerObj.lane];
+  
+  playerObj.x= lanePositions[playerObj.lane];
 
   if(frameCount%50===0){
-
-    const randomLane=
-    Math.floor(Math.random()*3);
-
-    const reward=
-    Math.random()>0.5;
+    const randomLane= Math.floor(Math.random()*3);
+    const reward= Math.random()>0.5;
 
     gameEntities.push({
-
       x:lanePositions[randomLane],
-
       y:-40,
-
       size:40,
-
-      type:
-      reward
-      ? "reward"
-      : "danger",
-
-      symbol:
-      reward
-      ? "💎"
-      : "🛒"
+      type: reward ? "reward" : "danger",
+      symbol: reward ? "💎" : "🛒"
     });
   }
 
-  ctx.strokeStyle=
-  "rgba(255,255,255,0.25)";
-
+  ctx.strokeStyle= "rgba(255,255,255,0.25)";
   ctx.lineWidth=4;
-
   ctx.beginPath();
-
   ctx.moveTo(canvas.width/3,0);
-
   ctx.lineTo(canvas.width/3,canvas.height);
-
   ctx.stroke();
-
   ctx.beginPath();
-
   ctx.moveTo(canvas.width/1.5,0);
-
   ctx.lineTo(canvas.width/1.5,canvas.height);
-
   ctx.stroke();
 
   updateEntities(0,gameSpeed);
 }
 
-// FLAPPY
-
+// FLAPPY IMPROVEMENT
 function processFlappyBird(){
-
-  playerObj.velocityY+=0.35;
-
+  playerObj.velocityY+=0.28;
+  playerObj.velocityY*=0.98;
   playerObj.y+=playerObj.velocityY;
 
-  if(
-    playerObj.y>canvas.height ||
-    playerObj.y<0
-  ){
+  if(playerObj.y>canvas.height || playerObj.y<0){
     triggerGameOver();
   }
 
-  // POINTS
-
   if(frameCount%120===0){
-
     gameScore+=1;
-
     updateScore();
-  }
-
-  // OBSTACLES
-
-  if(frameCount%90===0){
-
     gameEntities.push({
-
-      x:canvas.width,
-
-      y:
-      Math.random()*
-      (canvas.height-120),
-
-      size:40,
-
-      type:"danger",
-
-      symbol:"⏰"
+      x:playerObj.x+60,
+      y:playerObj.y,
+      size:30,
+      type:"visual",
+      symbol:"⭐",
+      opacity:1
     });
   }
 
+  if(frameCount%90===0){
+    gameEntities.push({
+      x:canvas.width,
+      y: Math.random()*(canvas.height-120),
+      size:40,
+      type:"danger",
+      symbol:"⏰"
+    });
+  }
+  
   updateEntities(-gameSpeed,0);
 }
 
-// ENTITIES
-
+// UPDATE ENTITIES
 function updateEntities(speedX,speedY){
-
   for(let i=0;i<gameEntities.length;i++){
-
     const entity=gameEntities[i];
-
     entity.x+=speedX;
-
     entity.y+=speedY;
 
+    if(entity.x + entity.size < -50 || entity.y > canvas.height + 50){
+      gameEntities.splice(i,1);
+      i--;
+      continue;
+    }
+
+    if(entity.type==="visual"){
+      ctx.globalAlpha= entity.opacity;
+      ctx.font="34px Arial";
+      ctx.fillText(entity.symbol, entity.x, entity.y);
+      
+      entity.y-=1.5;
+      entity.opacity-=0.02;
+      ctx.globalAlpha=1;
+      
+      if(entity.opacity<=0){
+        gameEntities.splice(i,1);
+        i--;
+      }
+      continue;
+    }
+
     ctx.font="38px Arial";
-
-    ctx.fillText(
-      entity.symbol,
-      entity.x,
-      entity.y+30
-    );
-
-    // COLLISION
+    ctx.fillText(entity.symbol, entity.x, entity.y+30);
 
     if(
-
-      playerObj.x
-      <
-      entity.x+entity.size
-
-      &&
-
-      playerObj.x+
-      playerObj.size
-      >
-      entity.x
-
-      &&
-
-      playerObj.y
-      <
-      entity.y+entity.size
-
-      &&
-
-      playerObj.y+
-      playerObj.size
-      >
-      entity.y
-
+      playerObj.x < entity.x+entity.size &&
+      playerObj.x+playerObj.size > entity.x &&
+      playerObj.y < entity.y+entity.size &&
+      playerObj.y+playerObj.size > entity.y
     ){
-
       if(entity.type==="danger"){
-
         triggerGameOver();
       }
-
       if(entity.type==="reward"){
-
         coinSound.currentTime=0;
         coinSound.play();
-
         gameScore+=10;
-
         updateScore();
-
         gameEntities.splice(i,1);
-
         i--;
       }
     }
@@ -610,99 +432,50 @@ function updateEntities(speedX,speedY){
 }
 
 // SCORE UPDATE
-
 function updateScore(){
-
   scoreDisplay.innerText=gameScore;
-
   updateGameBackground();
-
-  // SPEED INCREASE EVERY 10 POINTS
-
-  gameSpeed=
-  5+
-  Math.floor(gameScore/10);
+  gameSpeed= 5+ Math.floor(gameScore/10);
 }
 
 // CONTROLS
+canvas.addEventListener("mousedown", executeAction);
 
-canvas.addEventListener(
-  "mousedown",
-  executeAction
-);
-
-canvas.addEventListener(
-  "touchstart",
-  (e)=>{
-
-    e.preventDefault();
-
-    executeAction(e.touches[0]);
-
-  },
-  {passive:false}
-);
+canvas.addEventListener("touchstart", (e)=>{
+  e.preventDefault();
+  executeAction(e.touches[0]);
+}, {passive:false});
 
 leftBtn.addEventListener("click",()=>{
-
-  if(
-    activeGame==="Subway Surfers"
-    &&
-    playerObj.lane>0
-  ){
-
+  if(activeGame==="Subway Surfers" && playerObj.lane>0){
     playerObj.lane--;
   }
 });
 
 rightBtn.addEventListener("click",()=>{
-
-  if(
-    activeGame==="Subway Surfers"
-    &&
-    playerObj.lane<2
-  ){
-
+  if(activeGame==="Subway Surfers" && playerObj.lane<2){
     playerObj.lane++;
   }
 });
 
 function executeAction(e){
-
   if(!isGameRunning) return;
 
   jumpSound.currentTime=0;
   jumpSound.play();
 
-  const rect=
-  canvas.getBoundingClientRect();
-
-  const touchX=
-  (e.clientX || e.pageX)
-  - rect.left;
+  const rect= canvas.getBoundingClientRect();
+  const touchX= (e.clientX || e.pageX) - rect.left;
 
   if(activeGame==="Flappy Bird"){
-
     playerObj.velocityY=-7;
   }
 
   if(activeGame==="Subway Surfers"){
-
-    if(
-      touchX<canvas.width/2
-      &&
-      playerObj.lane>0
-    ){
-
+    if(touchX<canvas.width/2 && playerObj.lane>0){
       playerObj.lane--;
     }
-
-    if(
-      touchX>canvas.width/2
-      &&
-      playerObj.lane<2
-    ){
-
+    if(touchX>canvas.width/2 && playerObj.lane<2){
       playerObj.lane++;
     }
   }
