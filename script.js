@@ -1,232 +1,571 @@
-document.getElementById('start-screen').addEventListener('click', function() {
-if (document.documentElement.requestFullscreen) {
-document.documentElement.requestFullscreen().catch((e) => console.log(e));
-}
-this.style.opacity = '0';
-setTimeout(() => {
-this.classList.add('hidden');
-document.getElementById('main-content').classList.remove('hidden');
-}, 500);
-const audio = document.getElementById('bg-music');
-audio.volume = 0.5;
-audio.play().catch((e) => console.log(e));
+// START SCREEN
+
+document.getElementById("start-screen").addEventListener("click", function () {
+
+  if (document.documentElement.requestFullscreen) {
+    document.documentElement.requestFullscreen().catch(() => {});
+  }
+
+  this.style.opacity = "0";
+
+  setTimeout(() => {
+    this.classList.add("hidden");
+    document.getElementById("main-content").classList.remove("hidden");
+  }, 500);
+
+  audio.volume = 0.5;
+  audio.play().catch(() => {});
 });
-const audio = document.getElementById('bg-music');
-const muteBtn = document.getElementById('mute-btn');
+
+// AUDIO
+
+const audio = document.getElementById("bg-music");
+const muteBtn = document.getElementById("mute-btn");
+
 let isMuted = false;
-muteBtn.addEventListener('click', () => {
-isMuted = !isMuted;
-audio.muted = isMuted;
-muteBtn.innerText = isMuted ? "Unmute Audio" : "Mute Audio";
+
+muteBtn.addEventListener("click", () => {
+
+  isMuted = !isMuted;
+
+  audio.muted = isMuted;
+
+  muteBtn.innerText = isMuted
+    ? "Unmute Audio"
+    : "Mute Audio";
 });
-window.addEventListener('scroll', () => {
-if (window.scrollY > window.innerHeight * 0.5) {
-audio.pause();
-} else {
-if (!isMuted) audio.play();
-}
-});
+
+// HEARTS
+
 function spawnHeart() {
-const container = document.getElementById('hearts-overlay');
-const heart = document.createElement('div');
-const icons = ['🤍', '💖', '💗', '🌸'];
-heart.innerText = icons[Math.floor(Math.random() * icons.length)];
-heart.className = 'heart';
-heart.style.left = Math.random() * 100 + 'vw';
-heart.style.animationDuration = Math.random() * 3 + 4 + 's';
-container.appendChild(heart);
-setTimeout(() => heart.remove(), 7000);
+
+  const container = document.getElementById("hearts-overlay");
+
+  const heart = document.createElement("div");
+
+  const icons = ["🤍", "💖", "💗", "🌸"];
+
+  heart.innerText =
+    icons[Math.floor(Math.random() * icons.length)];
+
+  heart.className = "heart";
+
+  heart.style.left = Math.random() * 100 + "vw";
+
+  heart.style.animationDuration =
+    Math.random() * 3 + 4 + "s";
+
+  container.appendChild(heart);
+
+  setTimeout(() => {
+    heart.remove();
+  }, 7000);
 }
+
 setInterval(spawnHeart, 300);
-const carousel = document.getElementById('carousel');
+
+// CAROUSEL
+
+const carousel = document.getElementById("carousel");
+
 let carouselInterval;
+
 function startCarouselAutoScroll() {
-carouselInterval = setInterval(() => {
-if (carousel.scrollLeft + carousel.clientWidth >= carousel.scrollWidth - 10) {
-carousel.scrollTo({ left: 0, behavior: 'smooth' });
-} else {
-carousel.scrollBy({ left: carousel.clientWidth, behavior: 'smooth' });
+
+  carouselInterval = setInterval(() => {
+
+    if (
+      carousel.scrollLeft + carousel.clientWidth >=
+      carousel.scrollWidth - 10
+    ) {
+
+      carousel.scrollTo({
+        left: 0,
+        behavior: "smooth",
+      });
+
+    } else {
+
+      carousel.scrollBy({
+        left: carousel.clientWidth,
+        behavior: "smooth",
+      });
+    }
+
+  }, 3000);
 }
-}, 3000);
-}
+
 startCarouselAutoScroll();
-carousel.addEventListener('touchstart', () => {
-clearInterval(carouselInterval);
-});
-carousel.addEventListener('touchend', () => {
-setTimeout(startCarouselAutoScroll, 30000);
-});
-const canvas = document.getElementById('game-canvas');
-const ctx = canvas.getContext('2d');
-const avatar = document.getElementById('player-avatar');
-const scoreDisplay = document.getElementById('score-display');
-const highscoreDisplay = document.getElementById('highscore-display');
-const controlsDiv = document.getElementById('game-controls');
+
+// GAME
+
+const canvas = document.getElementById("game-canvas");
+const ctx = canvas.getContext("2d");
+
+const avatar = document.getElementById("player-avatar");
+
+const scoreDisplay =
+  document.getElementById("score-display");
+
+const highScoreDisplay =
+  document.getElementById("high-score-display");
+
+const leftBtn =
+  document.getElementById("left-btn");
+
+const rightBtn =
+  document.getElementById("right-btn");
+
 let animationId;
-let activeGame = '';
-let isGameRunning = false;
+
+let activeGame = "";
+
 let gameScore = 0;
+
 let frameCount = 0;
-let flappyScoreTimer = 0;
-let playerObj = { x: 50, y: 150, size: 50, velocityY: 0, velocityX: 0, lane: 1 };
+
+let isGameRunning = false;
+
 let gameEntities = [];
+
+let playerObj = {};
+
 const gameRules = {
-'Subway Surfers': 'Use the Left and Right buttons to switch lanes. Avoid shopping carts and collect gift bags for points.',
-'Flappy Bird': 'Tap the game area to fly upwards. Avoid the alarm clocks. Points increase automatically every two seconds.'
+
+  "Subway Surfers":
+    "Controls: Use left/right buttons or tap left/right side of screen. Avoid carts and collect gems 💎.",
+
+  "Flappy Bird":
+    "Controls: Tap anywhere to fly upwards. Survive as long as possible."
 };
-function updateHighScore(score, gameName) {
-let currentHigh = localStorage.getItem(gameName + 'HighScore') || 0;
-if (score > currentHigh) {
-localStorage.setItem(gameName + 'HighScore', score);
-currentHigh = score;
-}
-highscoreDisplay.innerText = currentHigh;
-}
+
 function resizeCanvas() {
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+
+  canvas.width = window.innerWidth - 30;
+
+  canvas.height = window.innerHeight - 280;
 }
-function initializeGame(name) {
-activeGame = name;
-document.getElementById('game-screen').classList.remove('hidden');
-document.getElementById('game-title-display').innerText = name;
-document.getElementById('game-instruction').innerText = gameRules[name];
-document.getElementById('pre-game-modal').classList.remove('hidden');
-document.getElementById('game-over-message').classList.add('hidden');
-controlsDiv.classList.add('hidden');
-let savedHigh = localStorage.getItem(name + 'HighScore') || 0;
-highscoreDisplay.innerText = savedHigh;
-scoreDisplay.innerText = 0;
+
 resizeCanvas();
-window.addEventListener('resize', resizeCanvas);
-if (animationId) cancelAnimationFrame(animationId);
+
+window.addEventListener("resize", resizeCanvas);
+
+// INIT GAME
+
+function initializeGame(name) {
+
+  activeGame = name;
+
+  document
+    .getElementById("game-screen")
+    .classList.remove("hidden");
+
+  document.getElementById(
+    "game-title-display"
+  ).innerText = name;
+
+  document.getElementById(
+    "game-instruction"
+  ).innerText = gameRules[name];
+
+  document.getElementById(
+    "start-play-btn"
+  ).style.display = "block";
+
+  document.getElementById(
+    "game-over-message"
+  ).classList.add("hidden");
+
+  canvas.style.display = "none";
+
+  loadHighScore();
+
+  if (name === "Subway Surfers") {
+
+    document
+      .getElementById("control-panel")
+      .classList.remove("hidden");
+
+  } else {
+
+    document
+      .getElementById("control-panel")
+      .classList.add("hidden");
+  }
+
+  if (animationId) {
+    cancelAnimationFrame(animationId);
+  }
 }
+
+// EXIT
+
 function exitGame() {
-document.getElementById('game-screen').classList.add('hidden');
-isGameRunning = false;
-if (animationId) cancelAnimationFrame(animationId);
-window.removeEventListener('resize', resizeCanvas);
+
+  document
+    .getElementById("game-screen")
+    .classList.add("hidden");
+
+  isGameRunning = false;
+
+  if (animationId) {
+    cancelAnimationFrame(animationId);
+  }
 }
-document.getElementById('start-play-btn').addEventListener('click', function() {
-document.getElementById('pre-game-modal').classList.add('hidden');
-if (activeGame === 'Subway Surfers') {
-controlsDiv.classList.remove('hidden');
-}
-startGameLoop();
+
+// START
+
+document.getElementById("start-play-btn")
+.addEventListener("click", function () {
+
+  this.style.display = "none";
+
+  canvas.style.display = "block";
+
+  startGameLoop();
 });
+
+// GAME LOOP
+
 function startGameLoop() {
-isGameRunning = true;
-gameScore = 0;
-frameCount = 0;
-flappyScoreTimer = 0;
-scoreDisplay.innerText = gameScore;
-gameEntities = [];
-document.getElementById('game-over-message').classList.add('hidden');
-if (activeGame === 'Subway Surfers') {
-playerObj = { x: canvas.width / 2 - 25, y: canvas.height - 150, size: 50, lane: 1 };
-} else {
-playerObj = { x: canvas.width / 4, y: canvas.height / 2, size: 50, velocityY: 0 };
+
+  resizeCanvas();
+
+  isGameRunning = true;
+
+  gameScore = 0;
+
+  frameCount = 0;
+
+  gameEntities = [];
+
+  scoreDisplay.innerText = gameScore;
+
+  document
+    .getElementById("game-over-message")
+    .classList.add("hidden");
+
+  if (activeGame === "Subway Surfers") {
+
+    playerObj = {
+      x: canvas.width / 2,
+      y: canvas.height - 120,
+      size: 55,
+      lane: 1
+    };
+
+  } else {
+
+    playerObj = {
+      x: 80,
+      y: 150,
+      size: 55,
+      velocityY: 0
+    };
+  }
+
+  function renderLoop() {
+
+    if (!isGameRunning) return;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    frameCount++;
+
+    if (activeGame === "Subway Surfers") {
+      processSubwaySurfers();
+    }
+
+    if (activeGame === "Flappy Bird") {
+      processFlappyBird();
+    }
+
+    ctx.save();
+
+    ctx.beginPath();
+
+    ctx.arc(
+      playerObj.x + playerObj.size / 2,
+      playerObj.y + playerObj.size / 2,
+      playerObj.size / 2,
+      0,
+      Math.PI * 2
+    );
+
+    ctx.clip();
+
+    ctx.drawImage(
+      avatar,
+      playerObj.x,
+      playerObj.y,
+      playerObj.size,
+      playerObj.size
+    );
+
+    ctx.restore();
+
+    animationId = requestAnimationFrame(renderLoop);
+  }
+
+  renderLoop();
 }
-function renderLoop() {
-if (!isGameRunning) return;
-ctx.clearRect(0, 0, canvas.width, canvas.height);
-frameCount++;
-if (activeGame === 'Subway Surfers') processSubwaySurfers();
-if (activeGame === 'Flappy Bird') processFlappyBird();
-ctx.drawImage(avatar, playerObj.x, playerObj.y, playerObj.size, playerObj.size);
-if (isGameRunning) animationId = requestAnimationFrame(renderLoop);
+
+// HIGH SCORE
+
+function loadHighScore() {
+
+  const score =
+    localStorage.getItem(activeGame + "_highscore") || 0;
+
+  highScoreDisplay.innerText = score;
 }
-renderLoop();
+
+function saveHighScore() {
+
+  const current =
+    localStorage.getItem(activeGame + "_highscore") || 0;
+
+  if (gameScore > current) {
+
+    localStorage.setItem(
+      activeGame + "_highscore",
+      gameScore
+    );
+
+    highScoreDisplay.innerText = gameScore;
+  }
 }
+
+// GAME OVER
+
 function triggerGameOver() {
-isGameRunning = false;
-document.getElementById('game-over-message').classList.remove('hidden');
-controlsDiv.classList.add('hidden');
-updateHighScore(gameScore, activeGame);
+
+  isGameRunning = false;
+
+  saveHighScore();
+
+  document
+    .getElementById("game-over-message")
+    .classList.remove("hidden");
 }
+
+// SUBWAY
+
 function processSubwaySurfers() {
-const laneWidth = canvas.width / 3;
-const lanePositions = [laneWidth / 2 - 25, laneWidth + laneWidth / 2 - 25, laneWidth * 2 + laneWidth / 2 - 25];
-playerObj.x = lanePositions[playerObj.lane];
-if (frameCount % 40 === 0) {
-let randomLane = Math.floor(Math.random() * 3);
-let isItem = Math.random() > 0.4;
-gameEntities.push({
-x: lanePositions[randomLane],
-y: -50,
-size: 50,
-type: isItem ? 'item' : 'danger',
-symbol: isItem ? '🛍️' : '🛒'
-});
+
+  const lanePositions = [
+    canvas.width * 0.2,
+    canvas.width * 0.5 - 25,
+    canvas.width * 0.8 - 50
+  ];
+
+  playerObj.x = lanePositions[playerObj.lane];
+
+  // SPAWN
+
+  if (frameCount % 50 === 0) {
+
+    const randomLane =
+      Math.floor(Math.random() * 3);
+
+    const reward =
+      Math.random() > 0.5;
+
+    gameEntities.push({
+
+      x: lanePositions[randomLane],
+      y: -40,
+      size: 40,
+
+      type: reward
+        ? "reward"
+        : "danger",
+
+      symbol: reward
+        ? "💎"
+        : "🛒"
+    });
+  }
+
+  // LANES
+
+  ctx.strokeStyle = "rgba(255,255,255,0.3)";
+  ctx.lineWidth = 4;
+
+  ctx.beginPath();
+  ctx.moveTo(canvas.width / 3, 0);
+  ctx.lineTo(canvas.width / 3, canvas.height);
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(canvas.width / 1.5, 0);
+  ctx.lineTo(canvas.width / 1.5, canvas.height);
+  ctx.stroke();
+
+  updateEntities(0, 7);
 }
-ctx.strokeStyle = 'rgba(255,255,255,0.5)';
-ctx.lineWidth = 2;
-ctx.beginPath(); ctx.moveTo(laneWidth, 0); ctx.lineTo(laneWidth, canvas.height); ctx.stroke();
-ctx.beginPath(); ctx.moveTo(laneWidth * 2, 0); ctx.lineTo(laneWidth * 2, canvas.height); ctx.stroke();
-updateEntities(0, 7 + (frameCount / 1000));
-}
+
+// FLAPPY
+
 function processFlappyBird() {
-playerObj.velocityY += 0.5;
-playerObj.y += playerObj.velocityY;
-if (playerObj.y > canvas.height || playerObj.y < 0) triggerGameOver();
-flappyScoreTimer++;
-if (flappyScoreTimer >= 120) {
-gameScore += 1;
-scoreDisplay.innerText = gameScore;
-flappyScoreTimer = 0;
+
+  playerObj.velocityY += 0.35;
+
+  playerObj.y += playerObj.velocityY;
+
+  if (
+    playerObj.y > canvas.height ||
+    playerObj.y < 0
+  ) {
+
+    triggerGameOver();
+  }
+
+  // SCORE EVERY 2 SECONDS
+
+  if (frameCount % 120 === 0) {
+
+    gameScore += 1;
+
+    scoreDisplay.innerText = gameScore;
+  }
+
+  // OBSTACLES
+
+  if (frameCount % 90 === 0) {
+
+    gameEntities.push({
+
+      x: canvas.width,
+      y: Math.random() * (canvas.height - 120),
+
+      size: 40,
+
+      type: "danger",
+
+      symbol: "⏰"
+    });
+  }
+
+  updateEntities(-5, 0);
 }
-if (frameCount % 70 === 0) {
-gameEntities.push({ x: canvas.width, y: Math.random() * (canvas.height - 100), size: 50, type: 'danger', symbol: '⏰' });
-}
-updateEntities(-4 - (frameCount / 1000), 0);
-}
+
+// ENTITIES
+
 function updateEntities(speedX, speedY) {
-for (let i = 0; i < gameEntities.length; i++) {
-let entity = gameEntities[i];
-entity.x += speedX;
-entity.y += speedY;
-ctx.font = '40px Arial';
-ctx.fillText(entity.symbol, entity.x, entity.y + 40);
-let buffer = 10;
-if (playerObj.x + buffer < entity.x + entity.size && 
-playerObj.x + playerObj.size - buffer > entity.x &&
-playerObj.y + buffer < entity.y + entity.size && 
-playerObj.y + playerObj.size - buffer > entity.y) {
-if (entity.type === 'danger') {
-triggerGameOver();
-} else if (entity.type === 'item') {
-gameScore += 10;
-scoreDisplay.innerText = gameScore;
-gameEntities.splice(i, 1);
-i--;
+
+  for (let i = 0; i < gameEntities.length; i++) {
+
+    const entity = gameEntities[i];
+
+    entity.x += speedX;
+
+    entity.y += speedY;
+
+    ctx.font = "38px Arial";
+
+    ctx.fillText(
+      entity.symbol,
+      entity.x,
+      entity.y + 30
+    );
+
+    // COLLISION
+
+    if (
+      playerObj.x < entity.x + entity.size &&
+      playerObj.x + playerObj.size > entity.x &&
+      playerObj.y < entity.y + entity.size &&
+      playerObj.y + playerObj.size > entity.y
+    ) {
+
+      if (entity.type === "danger") {
+
+        triggerGameOver();
+      }
+
+      if (entity.type === "reward") {
+
+        gameScore += 10;
+
+        scoreDisplay.innerText = gameScore;
+
+        gameEntities.splice(i, 1);
+
+        i--;
+      }
+    }
+  }
 }
-}
-}
-}
-document.getElementById('btn-left').addEventListener('touchstart', (e) => {
-e.preventDefault();
-if (isGameRunning && activeGame === 'Subway Surfers' && playerObj.lane > 0) playerObj.lane--;
+
+// CONTROLS
+
+canvas.addEventListener("mousedown", executeAction);
+
+canvas.addEventListener(
+  "touchstart",
+  (e) => {
+
+    e.preventDefault();
+
+    executeAction(e.touches[0]);
+
+  },
+  { passive: false }
+);
+
+leftBtn.addEventListener("click", () => {
+
+  if (
+    activeGame === "Subway Surfers" &&
+    playerObj.lane > 0
+  ) {
+
+    playerObj.lane--;
+  }
 });
-document.getElementById('btn-left').addEventListener('click', () => {
-if (isGameRunning && activeGame === 'Subway Surfers' && playerObj.lane > 0) playerObj.lane--;
+
+rightBtn.addEventListener("click", () => {
+
+  if (
+    activeGame === "Subway Surfers" &&
+    playerObj.lane < 2
+  ) {
+
+    playerObj.lane++;
+  }
 });
-document.getElementById('btn-right').addEventListener('touchstart', (e) => {
-e.preventDefault();
-if (isGameRunning && activeGame === 'Subway Surfers' && playerObj.lane < 2) playerObj.lane++;
-});
-document.getElementById('btn-right').addEventListener('click', () => {
-if (isGameRunning && activeGame === 'Subway Surfers' && playerObj.lane < 2) playerObj.lane++;
-});
-canvas.addEventListener('mousedown', executeAction);
-canvas.addEventListener('touchstart', (e) => {
-if (e.target === canvas) {
-e.preventDefault();
-executeAction();
-}
-}, {passive: false});
-function executeAction() {
-if (!isGameRunning) return;
-if (activeGame === 'Flappy Bird') {
-playerObj.velocityY = -10;
-}
+
+function executeAction(e) {
+
+  if (!isGameRunning) return;
+
+  const rect = canvas.getBoundingClientRect();
+
+  const touchX =
+    (e.clientX || e.pageX) - rect.left;
+
+  if (activeGame === "Flappy Bird") {
+
+    playerObj.velocityY = -7;
+  }
+
+  if (activeGame === "Subway Surfers") {
+
+    if (
+      touchX < canvas.width / 2 &&
+      playerObj.lane > 0
+    ) {
+
+      playerObj.lane--;
+    }
+
+    if (
+      touchX > canvas.width / 2 &&
+      playerObj.lane < 2
+    ) {
+
+      playerObj.lane++;
+    }
+  }
 }
