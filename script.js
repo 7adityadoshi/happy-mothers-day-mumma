@@ -70,21 +70,31 @@ const canvas = document.getElementById('game-canvas');
 const ctx = canvas.getContext('2d');
 const avatar = document.getElementById('player-avatar');
 const scoreDisplay = document.getElementById('score-display');
+const highscoreDisplay = document.getElementById('highscore-display');
+const controlsDiv = document.getElementById('game-controls');
 
 let animationId;
 let activeGame = '';
 let isGameRunning = false;
 let gameScore = 0;
 let frameCount = 0;
-let playerObj = { x: 50, y: 150, size: 30, velocityY: 0, velocityX: 0, lane: 1 };
+let flappyScoreTimer = 0;
+let playerObj = { x: 50, y: 150, size: 40, velocityY: 0, velocityX: 0, lane: 1 };
 let gameEntities = [];
 
 const gameRules = {
-  'Escape Work': 'Tap to fly upwards. Avoid laptops and folders. Collect tea.',
-  'Subway Surfers': 'Tap left or right side to switch lanes. Avoid carts.',
-  'Angry Birds': 'Tap to launch avatar at baskets.',
-  'Flappy Bird': 'Tap to bounce on desks. Avoid clocks.'
+  'Subway Surfers': 'Use the Left and Right buttons to switch lanes. Avoid shopping carts and collect gift bags for points.',
+  'Flappy Bird': 'Tap the game area to fly upwards. Avoid the alarm clocks. Points will increase automatically over time.'
 };
+
+function updateHighScore(score, gameName) {
+  let currentHigh = localStorage.getItem(gameName + 'HighScore') || 0;
+  if (score > currentHigh) {
+    localStorage.setItem(gameName + 'HighScore', score);
+    currentHigh = score;
+  }
+  highscoreDisplay.innerText = currentHigh;
+}
 
 function initializeGame(name) {
   activeGame = name;
@@ -94,18 +104,38 @@ function initializeGame(name) {
   document.getElementById('start-play-btn').style.display = 'block';
   document.getElementById('game-over-message').classList.add('hidden');
   canvas.style.display = 'none';
+  controlsDiv.classList.add('hidden');
+  
+  let savedHigh = localStorage.getItem(name + 'HighScore') || 0;
+  highscoreDisplay.innerText = savedHigh;
+  scoreDisplay.innerText = 0;
+
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
+
   if (animationId) cancelAnimationFrame(animationId);
+}
+
+function resizeCanvas() {
+  const containerWidth = document.getElementById('game-screen').clientWidth - 40;
+  const containerHeight = document.getElementById('game-screen').clientHeight * 0.6;
+  canvas.width = containerWidth;
+  canvas.height = containerHeight;
 }
 
 function exitGame() {
   document.getElementById('game-screen').classList.add('hidden');
   isGameRunning = false;
   if (animationId) cancelAnimationFrame(animationId);
+  window.removeEventListener('resize', resizeCanvas);
 }
 
 document.getElementById('start-play-btn').addEventListener('click', function() {
   this.style.display = 'none';
   canvas.style.display = 'block';
+  if (activeGame === 'Subway Surfers') {
+    controlsDiv.classList.remove('hidden');
+  }
   startGameLoop();
 });
 
@@ -113,14 +143,15 @@ function startGameLoop() {
   isGameRunning = true;
   gameScore = 0;
   frameCount = 0;
+  flappyScoreTimer = 0;
   scoreDisplay.innerText = gameScore;
   gameEntities = [];
   document.getElementById('game-over-message').classList.add('hidden');
   
   if (activeGame === 'Subway Surfers') {
-    playerObj = { x: 135, y: 320, size: 30, lane: 1 };
+    playerObj = { x: canvas.width / 2 - 20, y: canvas.height - 80, size: 40, lane: 1 };
   } else {
-    playerObj = { x: 50, y: 150, size: 30, velocityY: 0 };
+    playerObj = { x: canvas.width / 4, y: canvas.height / 2, size: 40, velocityY: 0 };
   }
 
   function renderLoop() {
@@ -128,9 +159,7 @@ function startGameLoop() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     frameCount++;
     
-    if (activeGame === 'Escape Work') processEscapeWork();
     if (activeGame === 'Subway Surfers') processSubwaySurfers();
-    if (activeGame === 'Angry Birds') processAngryBirds();
     if (activeGame === 'Flappy Bird') processFlappyBird();
 
     ctx.drawImage(avatar, playerObj.x, playerObj.y, playerObj.size, playerObj.size);
@@ -143,75 +172,50 @@ function startGameLoop() {
 function triggerGameOver() {
   isGameRunning = false;
   document.getElementById('game-over-message').classList.remove('hidden');
-}
-
-function processEscapeWork() {
-  playerObj.velocityY += 0.3;
-  playerObj.y += playerObj.velocityY;
-  if (playerObj.y > canvas.height || playerObj.y < 0) triggerGameOver();
-
-  if (frameCount % 90 === 0) {
-    let isItem = Math.random() > 0.6;
-    gameEntities.push({
-      x: canvas.width,
-      y: Math.random() * (canvas.height - 40),
-      size: 30,
-      type: isItem ? 'item' : 'danger',
-      symbol: isItem ? '☕' : '💻'
-    });
-  }
-  updateEntities(-3, 0);
+  controlsDiv.classList.add('hidden');
+  updateHighScore(gameScore, activeGame);
 }
 
 function processSubwaySurfers() {
-  const lanePositions = [35, 135, 235];
+  const laneWidth = canvas.width / 3;
+  const lanePositions = [laneWidth / 2 - 20, laneWidth + laneWidth / 2 - 20, laneWidth * 2 + laneWidth / 2 - 20];
   playerObj.x = lanePositions[playerObj.lane];
 
-  if (frameCount % 60 === 0) {
+  if (frameCount % 50 === 0) {
     let randomLane = Math.floor(Math.random() * 3);
+    let isItem = Math.random() > 0.5;
     gameEntities.push({
       x: lanePositions[randomLane],
-      y: -30,
-      size: 30,
-      type: 'danger',
-      symbol: '🛒'
+      y: -40,
+      size: 40,
+      type: isItem ? 'item' : 'danger',
+      symbol: isItem ? '🛍️' : '🛒'
     });
   }
   
   ctx.strokeStyle = 'white';
-  ctx.beginPath(); ctx.moveTo(100, 0); ctx.lineTo(100, 400); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(200, 0); ctx.lineTo(200, 400); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(laneWidth, 0); ctx.lineTo(laneWidth, canvas.height); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(laneWidth * 2, 0); ctx.lineTo(laneWidth * 2, canvas.height); ctx.stroke();
 
-  updateEntities(0, 4);
-}
-
-function processAngryBirds() {
-  if (frameCount === 1) {
-    gameEntities.push({ x: 220, y: 250, size: 40, type: 'danger', symbol: '🧺' });
-    playerObj.x = 20; playerObj.y = 250; playerObj.velocityX = 0; playerObj.velocityY = 0;
-  }
-  
-  playerObj.velocityY += 0.2;
-  playerObj.x += playerObj.velocityX;
-  playerObj.y += playerObj.velocityY;
-
-  if (playerObj.y > canvas.height) {
-    playerObj.y = 250; playerObj.x = 20; playerObj.velocityX = 0; playerObj.velocityY = 0;
-  }
-
-  updateEntities(0, 0);
+  updateEntities(0, 5 + (frameCount / 1000));
 }
 
 function processFlappyBird() {
-  playerObj.velocityY += 0.3;
+  playerObj.velocityY += 0.4;
   playerObj.y += playerObj.velocityY;
   if (playerObj.y > canvas.height || playerObj.y < 0) triggerGameOver();
 
-  if (frameCount % 100 === 0) {
-    gameEntities.push({ x: canvas.width, y: Math.random() * 300, size: 30, type: 'danger', symbol: '⏰' });
-    gameEntities.push({ x: canvas.width, y: Math.random() * 300 + 50, size: 30, type: 'bounce', symbol: '🪑' });
+  flappyScoreTimer++;
+  if (flappyScoreTimer >= 120) {
+    gameScore += 1;
+    scoreDisplay.innerText = gameScore;
+    flappyScoreTimer = 0;
   }
-  updateEntities(-2, 0);
+
+  if (frameCount % 80 === 0) {
+    gameEntities.push({ x: canvas.width, y: Math.random() * (canvas.height - 60), size: 40, type: 'danger', symbol: '⏰' });
+  }
+  updateEntities(-3 - (frameCount / 1000), 0);
 }
 
 function updateEntities(speedX, speedY) {
@@ -220,11 +224,15 @@ function updateEntities(speedX, speedY) {
     entity.x += speedX;
     entity.y += speedY;
 
-    ctx.font = '28px Arial';
-    ctx.fillText(entity.symbol, entity.x, entity.y + 25);
+    ctx.font = '32px Arial';
+    ctx.fillText(entity.symbol, entity.x, entity.y + 30);
 
-    if (playerObj.x < entity.x + entity.size && playerObj.x + playerObj.size > entity.x &&
-        playerObj.y < entity.y + entity.size && playerObj.y + playerObj.size > entity.y) {
+    let collisionBuffer = 10;
+    if (playerObj.x + collisionBuffer < entity.x + entity.size && 
+        playerObj.x + playerObj.size - collisionBuffer > entity.x &&
+        playerObj.y + collisionBuffer < entity.y + entity.size && 
+        playerObj.y + playerObj.size - collisionBuffer > entity.y) {
+      
       if (entity.type === 'danger') {
         triggerGameOver();
       } else if (entity.type === 'item') {
@@ -232,29 +240,33 @@ function updateEntities(speedX, speedY) {
         scoreDisplay.innerText = gameScore;
         gameEntities.splice(i, 1);
         i--;
-      } else if (entity.type === 'bounce') {
-        playerObj.velocityY = -6;
       }
     }
   }
 }
+
+document.getElementById('btn-left').addEventListener('touchstart', (e) => {
+  e.preventDefault();
+  if (isGameRunning && activeGame === 'Subway Surfers' && playerObj.lane > 0) playerObj.lane--;
+});
+document.getElementById('btn-left').addEventListener('click', () => {
+  if (isGameRunning && activeGame === 'Subway Surfers' && playerObj.lane > 0) playerObj.lane--;
+});
+
+document.getElementById('btn-right').addEventListener('touchstart', (e) => {
+  e.preventDefault();
+  if (isGameRunning && activeGame === 'Subway Surfers' && playerObj.lane < 2) playerObj.lane++;
+});
+document.getElementById('btn-right').addEventListener('click', () => {
+  if (isGameRunning && activeGame === 'Subway Surfers' && playerObj.lane < 2) playerObj.lane++;
+});
 
 canvas.addEventListener('mousedown', executeAction);
 canvas.addEventListener('touchstart', (e) => { e.preventDefault(); executeAction(e.touches[0]); }, {passive: false});
 
 function executeAction(e) {
   if (!isGameRunning) return;
-  
-  let rect = canvas.getBoundingClientRect();
-  let touchX = (e.clientX || e.pageX) - rect.left;
-
-  if (activeGame === 'Escape Work' || activeGame === 'Flappy Bird') {
-    playerObj.velocityY = -6;
-  } else if (activeGame === 'Subway Surfers') {
-    if (touchX < canvas.width / 2 && playerObj.lane > 0) playerObj.lane--;
-    if (touchX > canvas.width / 2 && playerObj.lane < 2) playerObj.lane++;
-  } else if (activeGame === 'Angry Birds') {
-    playerObj.velocityX = 6;
-    playerObj.velocityY = -5;
+  if (activeGame === 'Flappy Bird') {
+    playerObj.velocityY = -8;
   }
 }
