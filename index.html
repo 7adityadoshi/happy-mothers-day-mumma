@@ -6,75 +6,65 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>Happy Mothers Day</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
 </head>
 <body>
+
+<div id="hearts-overlay"></div>
 <audio id="bg-music" src="10.mp3" loop></audio>
 
-<button id="mute-btn">🎵 Mute</button>
+<div id="start-screen" class="overlay-screen">
+  <div>Tap anywhere to reveal the surprise</div>
+</div>
 
-<div id="hearts-container"></div>
-
-<div id="click-to-start" class="start-screen">Tap anywhere to reveal the surprise</div>
-
-<div id="landing-page" class="hidden opacity-0 transition-opacity">
-  <div class="carousel-wrapper">
-    <div class="carousel-container" id="dial-carousel">
-      <img src="2.jpeg" class="carousel-img active">
-      <img src="3.jpeg" class="carousel-img">
-      <img src="4.jpeg" class="carousel-img">
-      <img src="5.jpeg" class="carousel-img">
-      <img src="6.jpeg" class="carousel-img">
-      <img src="7.jpeg" class="carousel-img">
-      <img src="8.jpeg" class="carousel-img">
-      <img src="9.jpeg" class="carousel-img">
-      <img src="11.jpeg" class="carousel-img">
-      <img src="12.jpeg" class="carousel-img">
-    </div>
-    <div class="carousel-controls">
-      <button id="prev-btn">❮</button>
-      <button id="next-btn">❯</button>
-    </div>
-  </div>
-
-  <div class="message-box">
-    <h1>Happy Mother's Day</h1>
+<div id="main-content" class="hidden">
+  <button id="mute-btn">Mute Audio</button>
+  
+  <div class="glass-panel text-center">
+    <h1>Happy Mothers Day</h1>
     <p>To the prettiest woman of all. Thank you for seamlessly managing both your professional work and our home, and for keeping us all so happy. Your incredible food and endless care mean everything to me. I will miss you and your cooking terribly when I leave for FLAME University for the next two years. I value you the most.</p>
-    <span class="highlight">from your most loved adi</span>
+    <div class="highlight text-right">from your most loved adi</div>
   </div>
 
-  <div class="scroll-prompt">Scroll down for games ↓</div>
-</div>
-
-<div id="games-section" class="hidden">
-  <h2>Select A Game</h2>
-  <div class="game-grid">
-    <button onclick="openGame('Escape Work')">Escape Work</button>
-    <button onclick="openGame('Subway Surfers')">Subway Surfers</button>
-    <button onclick="openGame('Angry Birds')">Angry Birds</button>
-    <button onclick="openGame('Flappy Bird')">Flappy Bird</button>
+  <div class="carousel-container" id="carousel">
+    <img src="2.jpeg" class="carousel-image" alt="Mom">
+    <img src="3.jpeg" class="carousel-image" alt="Mom">
+    <img src="4.jpeg" class="carousel-image" alt="Mom">
+    <img src="5.jpeg" class="carousel-image" alt="Mom">
+    <img src="6.jpeg" class="carousel-image" alt="Mom">
+    <img src="7.jpeg" class="carousel-image" alt="Mom">
+    <img src="8.jpeg" class="carousel-image" alt="Mom">
+    <img src="9.jpeg" class="carousel-image" alt="Mom">
+    <img src="11.jpeg" class="carousel-image" alt="Mom">
+    <img src="12.jpeg" class="carousel-image" alt="Mom">
   </div>
-</div>
 
-<div id="game-modal" class="hidden">
-  <div class="modal-header">
-    <button onclick="closeGame()" class="back-btn">Return To Menu</button>
-    <h2 id="game-title"></h2>
-    <div class="score-board">Score: <span id="current-score">0</span></div>
-  </div>
-  <p id="game-instructions" class="instructions-text"></p>
-  <button id="start-game-btn" class="start-btn">Start Playing</button>
-  
-  <div class="canvas-container">
-    <canvas id="game-canvas" width="400" height="600"></canvas>
-    <div id="game-over-screen" class="hidden text-overlay">
-      <h3>Game Over!</h3>
-      <button onclick="restartGame()" class="start-btn">Play Again</button>
+  <div class="glass-panel text-center margin-top">
+    <h2>Select A Game</h2>
+    <div class="game-buttons">
+      <button onclick="initializeGame('Escape Work')">Escape Work</button>
+      <button onclick="initializeGame('Subway Surfers')">Subway Surfers</button>
+      <button onclick="initializeGame('Angry Birds')">Angry Birds</button>
+      <button onclick="initializeGame('Flappy Bird')">Flappy Bird</button>
     </div>
   </div>
-  
-  <img id="avatar-img" src="1.jpeg" style="display:none;">
+</div>
+
+<div id="game-screen" class="hidden overlay-screen glass-background">
+  <div class="game-header">
+    <button onclick="exitGame()">Return To Menu</button>
+    <h2 id="game-title-display"></h2>
+    <div>Score: <span id="score-display">0</span></div>
+  </div>
+  <p id="game-instruction"></p>
+  <button id="start-play-btn">Start Playing</button>
+  <canvas id="game-canvas" width="300" height="400"></canvas>
+  <div id="game-over-message" class="hidden">
+    <h3>Game Over</h3>
+    <button onclick="startGameLoop()">Play Again</button>
+  </div>
+  <img id="player-avatar" src="1.jpeg" style="display:none;" alt="Avatar">
 </div>
 
 <script src="script.js"></script>
