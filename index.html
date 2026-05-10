@@ -6,7 +6,7 @@
 <meta name="viewport"
 content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
 
-<title>Happy Mothers Day</title>
+<title>Happy Mother's Day</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
 
@@ -19,6 +19,7 @@ content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable
 <div id="hearts-overlay"></div>
 
 <!-- AUDIO -->
+
 <audio id="bg-music" src="10.mp3" loop></audio>
 
 <audio id="coin-sound"
@@ -30,14 +31,25 @@ src="https://assets.mixkit.co/active_storage/sfx/2967/2967-preview.mp3"></audio>
 <audio id="jump-sound"
 src="https://assets.mixkit.co/active_storage/sfx/270/270-preview.mp3"></audio>
 
+<!-- GAME MUSIC -->
+
+<audio id="subway-music"
+src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8d06f6e73.mp3?filename=future-bass-beat-117997.mp3"
+loop></audio>
+
+<audio id="flappy-music"
+src="https://cdn.pixabay.com/download/audio/2022/03/10/audio_942f9c4d72.mp3?filename=arcade-music-loop-110624.mp3"
+loop></audio>
+
 <!-- START -->
+
 <div id="start-screen" class="overlay-screen">
 
   <div class="start-card">
 
     <div class="glow-ring"></div>
 
-    <h1>Happy Mother's Day Mumma 💖</h1>
+    <h1>Happy Mothers Day Mumma💖</h1>
 
     <p>
       A tiny surprise made with love for the most important woman in my life!
@@ -52,20 +64,20 @@ src="https://assets.mixkit.co/active_storage/sfx/270/270-preview.mp3"></audio>
 </div>
 
 <!-- MAIN -->
+
 <div id="main-content" class="hidden">
 
-  <button id="mute-btn">Mute Audio</button>
+  <button id="mute-btn">Audio</button>
 
   <!-- CAROUSEL -->
+
   <div class="carousel-section">
 
     <div class="carousel-title">
-      Our Favourite Memories
+      Our Favourite Memories 📸
     </div>
 
     <div class="carousel-wrapper">
-
-      <div class="carousel-glow"></div>
 
       <div class="carousel-container" id="carousel">
 
@@ -81,13 +93,19 @@ src="https://assets.mixkit.co/active_storage/sfx/270/270-preview.mp3"></audio>
         <img src="12.jpeg" class="carousel-image">
 
       </div>
+
+      <!-- DOTS -->
+
+      <div class="carousel-dots" id="carousel-dots"></div>
+
     </div>
   </div>
 
   <!-- MESSAGE -->
+
   <div class="glass-panel text-center">
 
-    <h1>Happy Mothers Day</h1>
+    <h1>Happy Mother's Day</h1>
 
     <p>
       To the prettiest woman of all, thank you for selflessly managing both your
@@ -105,6 +123,7 @@ src="https://assets.mixkit.co/active_storage/sfx/270/270-preview.mp3"></audio>
   </div>
 
   <!-- GAMES -->
+
   <div class="glass-panel text-center">
 
     <h2>Select A Game 🎮</h2>
@@ -126,6 +145,7 @@ src="https://assets.mixkit.co/active_storage/sfx/270/270-preview.mp3"></audio>
 </div>
 
 <!-- GAME -->
+
 <div id="game-screen" class="hidden">
 
   <div class="game-ui">
@@ -152,26 +172,34 @@ src="https://assets.mixkit.co/active_storage/sfx/270/270-preview.mp3"></audio>
 
     </div>
 
-    <div class="game-heading-box">
+    <!-- INSTRUCTION BOX -->
+
+    <div id="instruction-box" class="instruction-box">
 
       <h2 id="game-title-display"></h2>
 
       <p id="game-instruction"></p>
 
+      <button id="okay-btn">
+        Okay
+      </button>
+
     </div>
 
-    <button id="start-play-btn" class="start-game-btn">
-      Start Playing
-    </button>
+    <!-- COUNTDOWN -->
+
+    <div id="countdown" class="countdown hidden">
+      3
+    </div>
 
     <canvas id="game-canvas"></canvas>
 
     <div id="control-panel"
     class="control-panel hidden">
 
-      <button id="left-btn">⬅</button>
+      <button id="left-btn" class="control-btn">⬅</button>
 
-      <button id="right-btn">➡</button>
+      <button id="right-btn" class="control-btn">➡</button>
 
     </div>
 
@@ -179,7 +207,7 @@ src="https://assets.mixkit.co/active_storage/sfx/270/270-preview.mp3"></audio>
 
       <h3>Game Over 💔</h3>
 
-      <button onclick="startGameLoop()">
+      <button onclick="startGameLoop()" class="play-again-btn">
         Play Again
       </button>
 
