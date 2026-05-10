@@ -1,149 +1,108 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<meta name="mobile-web-app-capable" content="yes" />
-<meta name="apple-mobile-web-app-capable" content="yes" />
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <title>Happy Mothers Day</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="style.css" />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lato:wght@300;400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
 <div id="hearts-overlay"></div>
-
 <audio id="bg-music" src="10.mp3" loop></audio>
 
-<!-- START SCREEN -->
 <div id="start-screen" class="overlay-screen">
-  <div class="start-box">
-    <h1>Happy Mothers Day 💖</h1>
-    <p>Tap anywhere to reveal the surprise</p>
+  <div class="start-inner">
+    <div class="start-icon">💐</div>
+    <p class="start-text">Tap anywhere to reveal the surprise</p>
   </div>
 </div>
 
-<!-- MAIN CONTENT -->
 <div id="main-content" class="hidden">
-
-  <button id="mute-btn">Mute Audio</button>
+  <button id="mute-btn">🔊 Mute</button>
 
   <!-- CAROUSEL FIRST -->
-  <div class="carousel-wrapper">
+  <section class="section-wrap" id="carousel-section">
     <div class="carousel-container" id="carousel">
-      <img src="2.jpeg" class="carousel-image" alt="Mom" />
-      <img src="3.jpeg" class="carousel-image" alt="Mom" />
-      <img src="4.jpeg" class="carousel-image" alt="Mom" />
-      <img src="5.jpeg" class="carousel-image" alt="Mom" />
-      <img src="6.jpeg" class="carousel-image" alt="Mom" />
-      <img src="7.jpeg" class="carousel-image" alt="Mom" />
-      <img src="8.jpeg" class="carousel-image" alt="Mom" />
-      <img src="9.jpeg" class="carousel-image" alt="Mom" />
-      <img src="11.jpeg" class="carousel-image" alt="Mom" />
-      <img src="12.jpeg" class="carousel-image" alt="Mom" />
+      <img src="2.jpeg" class="carousel-image" alt="Mom">
+      <img src="3.jpeg" class="carousel-image" alt="Mom">
+      <img src="4.jpeg" class="carousel-image" alt="Mom">
+      <img src="5.jpeg" class="carousel-image" alt="Mom">
+      <img src="6.jpeg" class="carousel-image" alt="Mom">
+      <img src="7.jpeg" class="carousel-image" alt="Mom">
+      <img src="8.jpeg" class="carousel-image" alt="Mom">
+      <img src="9.jpeg" class="carousel-image" alt="Mom">
+      <img src="11.jpeg" class="carousel-image" alt="Mom">
+      <img src="12.jpeg" class="carousel-image" alt="Mom">
     </div>
-  </div>
+    <div class="carousel-dots" id="carousel-dots"></div>
+  </section>
 
-  <!-- MESSAGE -->
-  <div class="glass-panel text-center">
-    <h1>Happy Mothers Day</h1>
-
-    <p>
-      To the prettiest woman of all. Thank you for seamlessly managing both your
-      professional work and our home, and for keeping us all so happy.
-      Your incredible food and endless care mean everything to me.
-      I will miss you and your cooking terribly when I leave for FLAME University
-      for the next two years. I value you the most.
-    </p>
-
-    <div class="highlight">
-      from your most loved adi 💖
+  <!-- APPRECIATION CARD -->
+  <section class="section-wrap">
+    <div class="glass-panel text-center">
+      <div class="card-rose">🌹</div>
+      <h1>Happy Mother's Day</h1>
+      <p>To the prettiest woman of all. Thank you for seamlessly managing both your professional work and our home, and for keeping us all so happy. Your incredible food and endless care mean everything to me. I will miss you and your cooking terribly when I leave for FLAME University for the next two years. I value you the most.</p>
+      <div class="highlight">— from your most loved adi 💛</div>
     </div>
-  </div>
+  </section>
 
-  <!-- GAMES -->
-  <div class="glass-panel text-center games-panel">
-
-    <h2>Choose A Game</h2>
-
-    <div class="game-buttons">
-
-      <button onclick="initializeGame('Subway Surfers')" class="animated-btn">
-        Subway Surfers 🚆
-      </button>
-
-      <button onclick="initializeGame('Flappy Bird')" class="animated-btn">
-        Flappy Bird 🪽
-      </button>
-
+  <!-- GAME SELECT -->
+  <section class="section-wrap">
+    <div class="glass-panel text-center">
+      <h2>🎮 Pick a Game</h2>
+      <p class="sub-label">Take a break, Mama. Play a little.</p>
+      <div class="game-buttons">
+        <button class="game-btn" onclick="initializeGame('Subway Surfers')">
+          <span class="game-btn-icon">🏃</span>
+          <span class="game-btn-label">Subway Surfers</span>
+        </button>
+        <button class="game-btn" onclick="initializeGame('Flappy Bird')">
+          <span class="game-btn-icon">🐦</span>
+          <span class="game-btn-label">Flappy Bird</span>
+        </button>
+      </div>
     </div>
-  </div>
-
+  </section>
 </div>
 
 <!-- GAME SCREEN -->
-<div id="game-screen" class="hidden">
-
-  <div class="game-ui">
-
-    <div class="top-bar">
-
-      <button class="return-btn" onclick="exitGame()">
-        ← Menu
-      </button>
-
-      <div class="score-box">
-        <div>
-          Score:
-          <span id="score-display">0</span>
-        </div>
-
-        <div>
-          High:
-          <span id="high-score-display">0</span>
-        </div>
-      </div>
-
+<div id="game-screen" class="hidden full-screen-game">
+  <div class="game-topbar">
+    <button class="back-btn" onclick="exitGame()">← Back</button>
+    <span id="game-title-display" class="game-title-text"></span>
+    <div class="score-box">
+      <div class="score-val">Score <span id="score-display">0</span></div>
+      <div class="score-val hi">Best <span id="highscore-display">0</span></div>
     </div>
-
-    <div class="game-heading">
-      <h2 id="game-title-display"></h2>
-      <p id="game-instruction"></p>
-    </div>
-
-    <button id="start-play-btn" class="start-game-btn">
-      Start Playing
-    </button>
-
-    <canvas id="game-canvas"></canvas>
-
-    <!-- CONTROLS -->
-    <div id="control-panel" class="control-panel hidden">
-
-      <button id="left-btn">⬅</button>
-
-      <button id="right-btn">➡</button>
-
-    </div>
-
-    <div id="game-over-message" class="hidden">
-      <h3>Game Over 💔</h3>
-
-      <button onclick="startGameLoop()">
-        Play Again
-      </button>
-    </div>
-
   </div>
 
-  <img id="player-avatar" src="1.jpeg" style="display:none;" alt="Avatar" />
+  <div id="game-start-panel" class="game-start-panel">
+    <div id="game-instruction-box" class="instruction-box"></div>
+    <button id="start-play-btn" class="start-btn-big">▶ Start Playing</button>
+  </div>
 
+  <canvas id="game-canvas"></canvas>
+
+  <div id="subway-controls" class="subway-controls hidden">
+    <button id="btn-left" class="arrow-btn">◀</button>
+    <button id="btn-right" class="arrow-btn">▶</button>
+  </div>
+
+  <div id="game-over-message" class="hidden game-over-panel">
+    <div class="go-emoji">💔</div>
+    <h3>Game Over</h3>
+    <p id="go-score-text"></p>
+    <button onclick="startGameLoop()" class="play-again-btn">Play Again</button>
+  </div>
+
+  <img id="player-avatar" src="1.jpeg" style="display:none;" alt="Avatar">
 </div>
 
 <script src="script.js"></script>
-
 </body>
 </html>
