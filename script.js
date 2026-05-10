@@ -1,336 +1,260 @@
-// --- INITIALIZATION & UI ---
-document.getElementById('click-to-start').addEventListener('click', function() {
-  // Request fullscreen for true web app feel
+document.getElementById('start-screen').addEventListener('click', function() {
   if (document.documentElement.requestFullscreen) {
     document.documentElement.requestFullscreen().catch((e) => console.log(e));
-  } else if (document.documentElement.webkitRequestFullscreen) { /* Safari */
-    document.documentElement.webkitRequestFullscreen();
   }
-
   this.style.opacity = '0';
-  
   setTimeout(() => {
     this.classList.add('hidden');
-    const landing = document.getElementById('landing-page');
-    landing.classList.remove('hidden');
-    setTimeout(() => { landing.classList.remove('opacity-0'); }, 50);
-    document.getElementById('games-section').classList.remove('hidden');
-  }, 800);
-  
-  const bgMusic = document.getElementById('bg-music');
-  bgMusic.volume = 0.5;
-  bgMusic.play().catch(e => console.log("Audio play blocked"));
+    document.getElementById('main-content').classList.remove('hidden');
+  }, 500);
+  const audio = document.getElementById('bg-music');
+  audio.volume = 0.5;
+  audio.play().catch((e) => console.log(e));
 });
 
-// --- AUDIO CONTROLS & SCROLL LOGIC ---
-const bgMusic = document.getElementById('bg-music');
+const audio = document.getElementById('bg-music');
 const muteBtn = document.getElementById('mute-btn');
 let isMuted = false;
 
 muteBtn.addEventListener('click', () => {
   isMuted = !isMuted;
-  bgMusic.muted = isMuted;
-  muteBtn.innerText = isMuted ? "🔇 Unmute" : "🎵 Mute";
+  audio.muted = isMuted;
+  muteBtn.innerText = isMuted ? "Unmute Audio" : "Mute Audio";
 });
 
 window.addEventListener('scroll', () => {
-  // Stop music when user scrolls past landing page
-  if (window.scrollY > window.innerHeight * 0.7) {
-    bgMusic.pause();
+  if (window.scrollY > window.innerHeight * 0.5) {
+    audio.pause();
   } else {
-    if (!isMuted) bgMusic.play().catch(e=>console.log(e));
+    if (!isMuted) audio.play();
   }
 });
 
-// --- HEARTS ANIMATION (TOP TO BOTTOM) ---
-function createHearts() {
-  const container = document.getElementById('hearts-container');
-  for (let i = 0; i < 25; i++) {
-    const heart = document.createElement('div');
-    heart.innerHTML = ['💖', '💕', '💗', '💓', '🌸'][Math.floor(Math.random() * 5)];
-    heart.className = 'heart';
-    heart.style.left = Math.random() * 100 + 'vw';
-    heart.style.animationDuration = (Math.random() * 4 + 6) + 's';
-    heart.style.animationDelay = Math.random() * 5 + 's';
-    heart.style.fontSize = (Math.random() * 15 + 15) + 'px';
-    container.appendChild(heart);
-  }
+function spawnHeart() {
+  const container = document.getElementById('hearts-overlay');
+  const heart = document.createElement('div');
+  const icons = ['🤍', '💖', '💗', '🌸'];
+  heart.innerText = icons[Math.floor(Math.random() * icons.length)];
+  heart.className = 'heart';
+  heart.style.left = Math.random() * 100 + 'vw';
+  heart.style.animationDuration = Math.random() * 3 + 4 + 's';
+  container.appendChild(heart);
+  setTimeout(() => heart.remove(), 7000);
 }
-createHearts();
+setInterval(spawnHeart, 300);
 
-// --- 9:16 CAROUSEL LOGIC ---
-const images = document.querySelectorAll('.carousel-img');
-let currentIndex = 0;
-let carouselTimer;
+const carousel = document.getElementById('carousel');
+let carouselInterval;
 
-function showSlide(index) {
-  images.forEach(img => img.classList.remove('active'));
-  currentIndex = (index + images.length) % images.length;
-  images[currentIndex].classList.add('active');
-}
-
-function startCarousel() {
-  carouselTimer = setInterval(() => showSlide(currentIndex + 1), 2500);
+function startCarouselAutoScroll() {
+  carouselInterval = setInterval(() => {
+    if (carousel.scrollLeft + carousel.clientWidth >= carousel.scrollWidth - 10) {
+      carousel.scrollTo({ left: 0, behavior: 'smooth' });
+    } else {
+      carousel.scrollBy({ left: carousel.clientWidth, behavior: 'smooth' });
+    }
+  }, 3000);
 }
 
-function resetCarouselTimer() {
-  clearInterval(carouselTimer);
-  setTimeout(startCarousel, 30000); // Wait 30s before auto-resuming if clicked
-}
+startCarouselAutoScroll();
 
-document.getElementById('next-btn').addEventListener('click', () => {
-  showSlide(currentIndex + 1);
-  resetCarouselTimer();
-});
-document.getElementById('prev-btn').addEventListener('click', () => {
-  showSlide(currentIndex - 1);
-  resetCarouselTimer();
+carousel.addEventListener('touchstart', () => {
+  clearInterval(carouselInterval);
 });
 
-startCarousel();
+carousel.addEventListener('touchend', () => {
+  setTimeout(startCarouselAutoScroll, 30000);
+});
 
-// --- SOUND EFFECTS ENGINE (Synthesizer) ---
-const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-function playSound(type) {
-  if (isMuted || !audioCtx) return;
-  const osc = audioCtx.createOscillator();
-  const gain = audioCtx.createGain();
-  osc.connect(gain);
-  gain.connect(audioCtx.destination);
-  
-  if (type === 'jump') {
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(300, audioCtx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(600, audioCtx.currentTime + 0.1);
-    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
-    osc.start(); osc.stop(audioCtx.currentTime + 0.1);
-  } else if (type === 'coin') {
-    osc.type = 'square';
-    osc.frequency.setValueAtTime(800, audioCtx.currentTime);
-    osc.frequency.setValueAtTime(1200, audioCtx.currentTime + 0.05);
-    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
-    osc.start(); osc.stop(audioCtx.currentTime + 0.1);
-  } else if (type === 'crash') {
-    osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(150, audioCtx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(50, audioCtx.currentTime + 0.3);
-    gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
-    osc.start(); osc.stop(audioCtx.currentTime + 0.3);
-  }
-}
-
-// --- GAME LOGIC ENGINE ---
 const canvas = document.getElementById('game-canvas');
 const ctx = canvas.getContext('2d');
-const avatarImg = document.getElementById('avatar-img');
-const scoreDisplay = document.getElementById('current-score');
+const avatar = document.getElementById('player-avatar');
+const scoreDisplay = document.getElementById('score-display');
 
-let gameLoopId;
-let currentGame = '';
-let isPlaying = false;
-let score = 0;
-let frames = 0;
+let animationId;
+let activeGame = '';
+let isGameRunning = false;
+let gameScore = 0;
+let frameCount = 0;
+let playerObj = { x: 50, y: 150, size: 30, velocityY: 0, velocityX: 0, lane: 1 };
+let gameEntities = [];
 
-// Game State Variables
-let player = { x: 50, y: 300, width: 40, height: 40, velocityY: 0, velocityX: 0, lane: 1 };
-let entities = []; // Obstacles and coins
-
-const instructions = {
-  'Escape Work': 'Tap to fly. Dodge the laptops and folders 📁💻. Collect tea ☕ for points.',
-  'Subway Surfers': 'Tap left or right side of screen to switch lanes. Dodge carts 🛒, collect bags 🛍️.',
-  'Angry Birds': 'Tap to launch the avatar at the laundry baskets 🧺.',
-  'Flappy Bird': 'Tap to jump between desks 🪑. Dodge the alarm clocks ⏰.'
+const gameRules = {
+  'Escape Work': 'Tap to fly upwards. Avoid laptops and folders. Collect tea.',
+  'Subway Surfers': 'Tap left or right side to switch lanes. Avoid carts.',
+  'Angry Birds': 'Tap to launch avatar at baskets.',
+  'Flappy Bird': 'Tap to bounce on desks. Avoid clocks.'
 };
 
-function openGame(gameName) {
-  currentGame = gameName;
-  document.getElementById('game-modal').classList.remove('hidden');
-  document.getElementById('game-title').innerText = gameName;
-  document.getElementById('game-instructions').innerText = instructions[gameName];
-  document.getElementById('start-game-btn').style.display = 'block';
-  document.getElementById('game-over-screen').classList.add('hidden');
+function initializeGame(name) {
+  activeGame = name;
+  document.getElementById('game-screen').classList.remove('hidden');
+  document.getElementById('game-title-display').innerText = name;
+  document.getElementById('game-instruction').innerText = gameRules[name];
+  document.getElementById('start-play-btn').style.display = 'block';
+  document.getElementById('game-over-message').classList.add('hidden');
   canvas.style.display = 'none';
-  if (gameLoopId) cancelAnimationFrame(gameLoopId);
+  if (animationId) cancelAnimationFrame(animationId);
 }
 
-function closeGame() {
-  document.getElementById('game-modal').classList.add('hidden');
-  isPlaying = false;
-  if (gameLoopId) cancelAnimationFrame(gameLoopId);
+function exitGame() {
+  document.getElementById('game-screen').classList.add('hidden');
+  isGameRunning = false;
+  if (animationId) cancelAnimationFrame(animationId);
 }
 
-function restartGame() {
-  document.getElementById('game-over-screen').classList.add('hidden');
-  startGameEngine();
-}
-
-document.getElementById('start-game-btn').addEventListener('click', function() {
+document.getElementById('start-play-btn').addEventListener('click', function() {
   this.style.display = 'none';
   canvas.style.display = 'block';
-  if (audioCtx.state === 'suspended') audioCtx.resume();
-  startGameEngine();
+  startGameLoop();
 });
 
-function startGameEngine() {
-  isPlaying = true;
-  score = 0;
-  frames = 0;
-  scoreDisplay.innerText = score;
-  entities = [];
+function startGameLoop() {
+  isGameRunning = true;
+  gameScore = 0;
+  frameCount = 0;
+  scoreDisplay.innerText = gameScore;
+  gameEntities = [];
+  document.getElementById('game-over-message').classList.add('hidden');
   
-  // Reset player based on game
-  if (currentGame === 'Subway Surfers') {
-    player = { x: 200, y: 500, width: 40, height: 40, lane: 1 }; // lanes 0,1,2
+  if (activeGame === 'Subway Surfers') {
+    playerObj = { x: 135, y: 320, size: 30, lane: 1 };
   } else {
-    player = { x: 50, y: 300, width: 40, height: 40, velocityY: 0 };
+    playerObj = { x: 50, y: 150, size: 30, velocityY: 0 };
   }
 
-  function loop() {
-    if (!isPlaying) return;
+  function renderLoop() {
+    if (!isGameRunning) return;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    frames++;
+    frameCount++;
     
-    // Core Mechanics Route
-    if (currentGame === 'Escape Work') runEscapeWork();
-    if (currentGame === 'Subway Surfers') runSubwaySurfers();
-    if (currentGame === 'Angry Birds') runAngryBirds();
-    if (currentGame === 'Flappy Bird') runFlappyBird();
+    if (activeGame === 'Escape Work') processEscapeWork();
+    if (activeGame === 'Subway Surfers') processSubwaySurfers();
+    if (activeGame === 'Angry Birds') processAngryBirds();
+    if (activeGame === 'Flappy Bird') processFlappyBird();
 
-    // Draw Player
-    ctx.drawImage(avatarImg, player.x, player.y, player.width, player.height);
+    ctx.drawImage(avatar, playerObj.x, playerObj.y, playerObj.size, playerObj.size);
     
-    if (isPlaying) gameLoopId = requestAnimationFrame(loop);
+    if (isGameRunning) animationId = requestAnimationFrame(renderLoop);
+  }
+  renderLoop();
+}
+
+function triggerGameOver() {
+  isGameRunning = false;
+  document.getElementById('game-over-message').classList.remove('hidden');
+}
+
+function processEscapeWork() {
+  playerObj.velocityY += 0.3;
+  playerObj.y += playerObj.velocityY;
+  if (playerObj.y > canvas.height || playerObj.y < 0) triggerGameOver();
+
+  if (frameCount % 90 === 0) {
+    let isItem = Math.random() > 0.6;
+    gameEntities.push({
+      x: canvas.width,
+      y: Math.random() * (canvas.height - 40),
+      size: 30,
+      type: isItem ? 'item' : 'danger',
+      symbol: isItem ? '☕' : '💻'
+    });
+  }
+  updateEntities(-3, 0);
+}
+
+function processSubwaySurfers() {
+  const lanePositions = [35, 135, 235];
+  playerObj.x = lanePositions[playerObj.lane];
+
+  if (frameCount % 60 === 0) {
+    let randomLane = Math.floor(Math.random() * 3);
+    gameEntities.push({
+      x: lanePositions[randomLane],
+      y: -30,
+      size: 30,
+      type: 'danger',
+      symbol: '🛒'
+    });
   }
   
-  loop();
-}
-
-function gameOver() {
-  isPlaying = false;
-  playSound('crash');
-  document.getElementById('game-over-screen').classList.remove('hidden');
-}
-
-// --- SPECIFIC GAME MECHANICS ---
-
-function runEscapeWork() {
-  // Gravity
-  player.velocityY += 0.4;
-  player.y += player.velocityY;
-  if (player.y > canvas.height - player.height || player.y < 0) gameOver();
-
-  // Spawner
-  if (frames % 100 === 0) {
-    let type = Math.random() > 0.3 ? 'obstacle' : 'coin';
-    let icon = type === 'obstacle' ? (Math.random()>0.5?'💻':'📁') : '☕';
-    entities.push({ x: canvas.width, y: Math.random() * (canvas.height - 50), w: 40, h: 40, type: type, icon: icon });
-  }
-
-  processEntities(-3, 0); // Move left
-}
-
-function runSubwaySurfers() {
-  // Lanes: x = 80, x = 180, x = 280
-  const lanes = [80, 180, 280];
-  player.x = lanes[player.lane];
-
-  // Spawner
-  if (frames % 60 === 0) {
-    let lane = Math.floor(Math.random() * 3);
-    let type = Math.random() > 0.4 ? 'obstacle' : 'coin';
-    let icon = type === 'obstacle' ? '🛒' : '🛍️';
-    entities.push({ x: lanes[lane], y: -50, w: 40, h: 40, type: type, icon: icon });
-  }
-
-  // Draw lines
   ctx.strokeStyle = 'white';
-  ctx.beginPath(); ctx.moveTo(150, 0); ctx.lineTo(150, 600); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(250, 0); ctx.lineTo(250, 600); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(100, 0); ctx.lineTo(100, 400); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(200, 0); ctx.lineTo(200, 400); ctx.stroke();
 
-  processEntities(0, 5); // Move down
+  updateEntities(0, 4);
 }
 
-function runAngryBirds() {
-  // Simplified version: Target practice
-  if (frames === 1) {
-    entities.push({ x: 300, y: 400, w: 50, h: 50, type: 'obstacle', icon: '🧺' });
-    player.x = 50; player.y = 400; player.velocityX = 0; player.velocityY = 0;
+function processAngryBirds() {
+  if (frameCount === 1) {
+    gameEntities.push({ x: 220, y: 250, size: 40, type: 'danger', symbol: '🧺' });
+    playerObj.x = 20; playerObj.y = 250; playerObj.velocityX = 0; playerObj.velocityY = 0;
   }
   
-  player.velocityY += 0.2; // gravity
-  player.x += player.velocityX;
-  player.y += player.velocityY;
+  playerObj.velocityY += 0.2;
+  playerObj.x += playerObj.velocityX;
+  playerObj.y += playerObj.velocityY;
 
-  if (player.y > canvas.height) { player.y = 400; player.velocityX = 0; player.velocityY = 0;} // reset
-
-  processEntities(0, 0);
-}
-
-function runFlappyBird() {
-  player.velocityY += 0.4;
-  player.y += player.velocityY;
-  if (player.y > canvas.height || player.y < 0) gameOver();
-
-  if (frames % 120 === 0) {
-    entities.push({ x: canvas.width, y: Math.random() * 500, w: 60, h: 60, type: 'obstacle', icon: '⏰' });
-    entities.push({ x: canvas.width, y: Math.random() * 500, w: 60, h: 20, type: 'platform', icon: '🪑' });
+  if (playerObj.y > canvas.height) {
+    playerObj.y = 250; playerObj.x = 20; playerObj.velocityX = 0; playerObj.velocityY = 0;
   }
-  
-  processEntities(-2.5, 0);
+
+  updateEntities(0, 0);
 }
 
-function processEntities(speedX, speedY) {
-  for (let i = 0; i < entities.length; i++) {
-    let e = entities[i];
-    e.x += speedX;
-    e.y += speedY;
+function processFlappyBird() {
+  playerObj.velocityY += 0.3;
+  playerObj.y += playerObj.velocityY;
+  if (playerObj.y > canvas.height || playerObj.y < 0) triggerGameOver();
 
-    // Draw
-    ctx.font = '35px Arial';
-    ctx.fillText(e.icon, e.x, e.y + 35); // Emoji offset
+  if (frameCount % 100 === 0) {
+    gameEntities.push({ x: canvas.width, y: Math.random() * 300, size: 30, type: 'danger', symbol: '⏰' });
+    gameEntities.push({ x: canvas.width, y: Math.random() * 300 + 50, size: 30, type: 'bounce', symbol: '🪑' });
+  }
+  updateEntities(-2, 0);
+}
 
-    // Collision
-    if (player.x < e.x + e.w && player.x + player.width > e.x &&
-        player.y < e.y + e.h && player.y + player.height > e.y) {
-      if (e.type === 'obstacle') {
-        gameOver();
-      } else if (e.type === 'coin') {
-        score += 10;
-        scoreDisplay.innerText = score;
-        playSound('coin');
-        entities.splice(i, 1);
+function updateEntities(speedX, speedY) {
+  for (let i = 0; i < gameEntities.length; i++) {
+    let entity = gameEntities[i];
+    entity.x += speedX;
+    entity.y += speedY;
+
+    ctx.font = '28px Arial';
+    ctx.fillText(entity.symbol, entity.x, entity.y + 25);
+
+    if (playerObj.x < entity.x + entity.size && playerObj.x + playerObj.size > entity.x &&
+        playerObj.y < entity.y + entity.size && playerObj.y + playerObj.size > entity.y) {
+      if (entity.type === 'danger') {
+        triggerGameOver();
+      } else if (entity.type === 'item') {
+        gameScore += 10;
+        scoreDisplay.innerText = gameScore;
+        gameEntities.splice(i, 1);
         i--;
-      } else if (e.type === 'platform') { // Flappy bounce
-        player.velocityY = -8;
-        playSound('jump');
+      } else if (entity.type === 'bounce') {
+        playerObj.velocityY = -6;
       }
     }
   }
 }
 
-// --- INPUT HANDLING ---
-canvas.addEventListener('mousedown', handleInput);
-canvas.addEventListener('touchstart', (e) => { e.preventDefault(); handleInput(e.touches[0]); }, {passive: false});
+canvas.addEventListener('mousedown', executeAction);
+canvas.addEventListener('touchstart', (e) => { e.preventDefault(); executeAction(e.touches[0]); }, {passive: false});
 
-function handleInput(e) {
-  if (!isPlaying) return;
-  playSound('jump');
+function executeAction(e) {
+  if (!isGameRunning) return;
   
   let rect = canvas.getBoundingClientRect();
-  let clickX = (e.clientX || e.pageX) - rect.left;
+  let touchX = (e.clientX || e.pageX) - rect.left;
 
-  if (currentGame === 'Escape Work' || currentGame === 'Flappy Bird') {
-    player.velocityY = -8;
-  } 
-  else if (currentGame === 'Subway Surfers') {
-    if (clickX < canvas.width / 2 && player.lane > 0) player.lane--;
-    if (clickX > canvas.width / 2 && player.lane < 2) player.lane++;
-  }
-  else if (currentGame === 'Angry Birds') {
-    player.velocityX = 8;
-    player.velocityY = -6;
+  if (activeGame === 'Escape Work' || activeGame === 'Flappy Bird') {
+    playerObj.velocityY = -6;
+  } else if (activeGame === 'Subway Surfers') {
+    if (touchX < canvas.width / 2 && playerObj.lane > 0) playerObj.lane--;
+    if (touchX > canvas.width / 2 && playerObj.lane < 2) playerObj.lane++;
+  } else if (activeGame === 'Angry Birds') {
+    playerObj.velocityX = 6;
+    playerObj.velocityY = -5;
   }
 }
