@@ -8,68 +8,61 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
 <div id="hearts-overlay"></div>
 <audio id="bg-music" src="10.mp3" loop></audio>
-
 <div id="start-screen" class="overlay-screen">
-  <div>Tap anywhere to reveal the surprise</div>
+<div>Tap anywhere to reveal the surprise</div>
 </div>
-
 <div id="main-content" class="hidden">
-  <button id="mute-btn">Mute Audio</button>
-  
-  <div class="carousel-container" id="carousel">
-    <img src="2.jpeg" class="carousel-image" alt="Mom">
-    <img src="3.jpeg" class="carousel-image" alt="Mom">
-    <img src="4.jpeg" class="carousel-image" alt="Mom">
-    <img src="5.jpeg" class="carousel-image" alt="Mom">
-    <img src="6.jpeg" class="carousel-image" alt="Mom">
-    <img src="7.jpeg" class="carousel-image" alt="Mom">
-    <img src="8.jpeg" class="carousel-image" alt="Mom">
-    <img src="9.jpeg" class="carousel-image" alt="Mom">
-    <img src="11.jpeg" class="carousel-image" alt="Mom">
-    <img src="12.jpeg" class="carousel-image" alt="Mom">
-  </div>
-
-  <div class="glass-panel text-center">
-    <h1>Happy Mothers Day</h1>
-    <p>To the prettiest woman of all. Thank you for seamlessly managing both your professional work and our home, and for keeping us all so happy. Your incredible food and endless care mean everything to me. I will miss you and your cooking terribly when I leave for FLAME University for the next two years. I value you the most.</p>
-    <div class="highlight text-center">from your most loved adi</div>
-  </div>
-
-  <div class="glass-panel text-center margin-top">
-    <h2>Select A Game</h2>
-    <div class="game-buttons">
-      <button onclick="initializeGame('Subway Surfers')">Subway Surfers</button>
-      <button onclick="initializeGame('Flappy Bird')">Flappy Bird</button>
-    </div>
-  </div>
+<button id="mute-btn">Mute Audio</button>
+<div class="carousel-container" id="carousel">
+<img src="2.jpeg" class="carousel-image">
+<img src="3.jpeg" class="carousel-image">
+<img src="4.jpeg" class="carousel-image">
+<img src="5.jpeg" class="carousel-image">
+<img src="6.jpeg" class="carousel-image">
+<img src="7.jpeg" class="carousel-image">
+<img src="8.jpeg" class="carousel-image">
+<img src="9.jpeg" class="carousel-image">
+<img src="11.jpeg" class="carousel-image">
+<img src="12.jpeg" class="carousel-image">
 </div>
-
-<div id="game-screen" class="hidden overlay-screen glass-background">
-  <div class="game-header">
-    <button onclick="exitGame()">Return To Menu</button>
-    <h2 id="game-title-display"></h2>
-    <div>Score: <span id="score-display">0</span> | High Score: <span id="highscore-display">0</span></div>
-  </div>
-  <p id="game-instruction"></p>
-  <button id="start-play-btn">Start Playing</button>
-  
-  <div id="game-controls" class="hidden">
-    <button id="btn-left" class="control-btn">Left</button>
-    <button id="btn-right" class="control-btn">Right</button>
-  </div>
-
-  <canvas id="game-canvas"></canvas>
-  
-  <div id="game-over-message" class="hidden">
-    <h3>Game Over</h3>
-    <button onclick="startGameLoop()">Play Again</button>
-  </div>
-  <img id="player-avatar" src="1.jpeg" style="display:none;" alt="Avatar">
+<div class="glass-panel text-center">
+<h1>Happy Mothers Day</h1>
+<p>To the prettiest woman of all. Thank you for seamlessly managing both your professional work and our home, and for keeping us all so happy. Your incredible food and endless care mean everything to me. I will miss you and your cooking terribly when I leave for FLAME University for the next two years. I value you the most.</p>
+<div class="highlight text-center">from your most loved adi</div>
 </div>
-
+<div class="glass-panel text-center margin-top">
+<h2>Select A Game</h2>
+<div class="game-buttons">
+<button onclick="initializeGame('Subway Surfers')">Subway Surfers</button>
+<button onclick="initializeGame('Flappy Bird')">Flappy Bird</button>
+</div>
+</div>
+</div>
+<div id="game-screen" class="hidden">
+<canvas id="game-canvas"></canvas>
+<div id="game-ui">
+<div class="game-header">
+<button class="menu-btn" onclick="exitGame()">Return To Menu</button>
+<h2 id="game-title-display"></h2>
+<div class="score-board">Score: <span id="score-display">0</span> | High Score: <span id="highscore-display">0</span></div>
+</div>
+<div id="pre-game-modal" class="glass-panel text-center">
+<p id="game-instruction"></p>
+<button id="start-play-btn" class="action-btn">Start Playing</button>
+</div>
+<div id="game-controls" class="hidden">
+<button id="btn-left" class="control-btn">Left</button>
+<button id="btn-right" class="control-btn">Right</button>
+</div>
+<div id="game-over-message" class="hidden glass-panel text-center">
+<h3>Game Over</h3>
+<button class="action-btn" onclick="startGameLoop()">Play Again</button>
+</div>
+</div>
+<img id="player-avatar" src="1.jpeg" style="display:none;">
+</div>
 <script src="script.js"></script>
 </body>
 </html>
